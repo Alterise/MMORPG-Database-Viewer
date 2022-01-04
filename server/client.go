@@ -14,18 +14,45 @@ type client struct {
 
 func (c *client) readCommand() {
 	for {
-		cmd, err := bufio.NewReader(c.conn).ReadString('\n')
+		msg, err := bufio.NewReader(c.conn).ReadString('\n')
 		if err != nil {
 			return
 		}
 
-		cmd = strings.Trim(cmd, "\b\r\n")
+		msg = strings.Trim(msg, "\b\r\n")
+
+		args := strings.Split(msg, " ")
+		cmd := strings.TrimSpace(args[0])
+		args = args[1:]
 
 		switch cmd {
-		case "update":
+		case "update_locations":
 			c.commands <- command{
-				id:     CMD_UPDATE,
+				id:     CMD_UPDATE_VIEW_LOCATIONS,
 				client: c,
+			}
+		case "update_players":
+			c.commands <- command{
+				id:     CMD_UPDATE_VIEW_PLAYERS,
+				client: c,
+			}
+		case "query":
+			c.commands <- command{
+				id:     CMD_QUERY,
+				client: c,
+				args: args,
+			}
+		case "verify":
+			c.commands <- command{
+				id:     CMD_VERIFY,
+				client: c,
+				args: args,
+			}
+		case "get_characters":
+			c.commands <- command{
+				id:     CMD_GET_CHARACTER_INFO,
+				client: c,
+				args: args,
 			}
 		default:
 			c.err(fmt.Errorf("unknown command: %s", cmd))
