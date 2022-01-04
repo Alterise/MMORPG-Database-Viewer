@@ -1,4 +1,4 @@
-# database-viewer
+# MMORPG-Database-Viewer
 
 Client-server app with GUI
 
