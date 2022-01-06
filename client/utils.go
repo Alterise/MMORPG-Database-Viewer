@@ -6,8 +6,8 @@ import (
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
+	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
-	"net"
 	"reflect"
 	"strconv"
 )
@@ -15,7 +15,7 @@ import (
 func createControlsView() fyne.CanvasObject {
 	entryString = binding.NewString()
 	controlsView := container.NewGridWithRows(
-		2,
+		3,
 		container.NewAdaptiveGrid(
 			2,
 			widget.NewButton("Locations", updateLocationsView),
@@ -31,6 +31,9 @@ func createControlsView() fyne.CanvasObject {
 			),
 			widget.NewFormItem("Query: ", widget.NewEntryWithData(entryString)),
 		),
+		widget.NewButton("Quit", func() {
+			updateAuthView()
+		}),
 	)
 	return controlsView
 }
@@ -107,25 +110,20 @@ func createGridView(cellStruct interface{}, data [][]string) fyne.CanvasObject {
 }
 
 func sendCommandToServer(cmd string) string {
-	conn, err := net.Dial("tcp", ":8888")
+	_, err := fmt.Fprintf(conn, cmd + "\n")
 	if err != nil {
-		println(err.Error())
-		return ""
+		dialog.ShowInformation("Error", "Cant connect to the server", window)
+		return "connection error"
 	}
 
-	defer conn.Close()
-
-	_, err = fmt.Fprintf(conn, cmd + "\n")
-	if err != nil {
-		println(err.Error())
+	if cmd == "quit" {
 		return ""
 	}
-
 	var message string
 	message, err = bufio.NewReader(conn).ReadString('\n')
 	if err != nil {
-		println(err.Error())
-		return ""
+		dialog.ShowInformation("Error", "Cant connect to the server", window)
+		return "connection error"
 	}
 
 	return message

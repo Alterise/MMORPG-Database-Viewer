@@ -75,7 +75,6 @@ func createPlayerInfoJsonArray(db *sql.DB, args []string) []byte {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
 	return marshal
 }
 

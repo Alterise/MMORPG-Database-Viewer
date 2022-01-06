@@ -8,10 +8,12 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/widget"
 	_ "github.com/lib/pq"
+	"net"
 	"strings"
 )
 
 var window fyne.Window
+var conn net.Conn
 var entryString binding.String
 var entryStringLogin binding.String
 var entryStringPassword binding.String
@@ -34,6 +36,12 @@ func updateEmptyView() {
 			2,
 			widget.NewLabelWithStyle("Nothing in here yet", fyne.TextAlignCenter, fyne.TextStyle{}),
 			createControlsView()),
+	)
+}
+
+func updateErrorView(error string) {
+	window.SetContent(
+			widget.NewLabelWithStyle(error, fyne.TextAlignCenter, fyne.TextStyle{}),
 	)
 }
 
@@ -82,13 +90,26 @@ func updateAuthView() {
 }
 
 func main() {
+	var err error
+	conn, err = net.Dial("tcp", ":8888")
+	if err == nil {
+		defer conn.Close()
+	}
+
 	a := app.New()
 	window = a.NewWindow("Character Viewer")
 	window.Resize(fyne.NewSize(800, 600))
 
-	//updateEmptyView()
-	updateAuthView()
+	if err != nil {
+		updateErrorView("Cant connect to the server\n Try again Later")
+	} else {
+		updateAuthView()
+	}
 
 	window.ShowAndRun()
+
+	if err == nil {
+		sendCommandToServer("quit")
+	}
 }
 

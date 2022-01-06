@@ -22,18 +22,15 @@ func (s *server) run() {
 		switch cmd.id {
 		case CMD_UPDATE_VIEW_LOCATIONS:
 			s.sendJson(cmd.client, cmd.args, createLocationInfoJsonArray)
-			s.quit(cmd.client)
 		case CMD_UPDATE_VIEW_PLAYERS:
 			s.sendJson(cmd.client, cmd.args, createPlayerInfoJsonArray)
-			s.quit(cmd.client)
 		case CMD_QUERY:
 			s.processQuery(cmd.client, cmd.args)
-			s.quit(cmd.client)
 		case CMD_VERIFY:
 			s.verify(cmd.client, cmd.args)
-			s.quit(cmd.client)
 		case CMD_GET_CHARACTER_INFO:
 			s.sendJson(cmd.client, cmd.args, createCharacterInfoJsonArray)
+		case CMD_QUIT:
 			s.quit(cmd.client)
 		}
 	}
@@ -73,15 +70,15 @@ func (s *server) verify(c *client, args []string) {
 		fmt.Println("Query failed")
 	} else if correctLogin && correctPassword {
 		c.msg("success")
-		fmt.Println("User exists: " + login)
+		fmt.Println("User " + login + " with password hash " + password + " exists")
 	} else {
 		c.msg("failed")
-		fmt.Println("User doesn't exist: " + login)
+		fmt.Println("User " + login + " with password hash " + password + " doesn't exist")
 	}
 }
 
 func (s *server) newClient(conn net.Conn) {
-	//fmt.Printf("new client has joined: %s\n", conn.RemoteAddr().String())
+	fmt.Printf("new client has joined: %s\n", conn.RemoteAddr().String())
 
 	c := &client{
 		conn:     conn,
@@ -92,6 +89,6 @@ func (s *server) newClient(conn net.Conn) {
 }
 
 func (s *server) quit(c *client) {
-	//fmt.Printf("client has disconnected: %s\n", c.conn.RemoteAddr().String())
+	fmt.Printf("client has disconnected: %s\n", c.conn.RemoteAddr().String())
 	c.conn.Close()
 }
