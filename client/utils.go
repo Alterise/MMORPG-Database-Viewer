@@ -13,23 +13,30 @@ import (
 )
 
 func createControlsView() fyne.CanvasObject {
-	entryString = binding.NewString()
+	entryStringUsername = binding.NewString()
 	controlsView := container.NewGridWithRows(
 		3,
 		container.NewAdaptiveGrid(
 			2,
 			widget.NewButton("Locations", updateLocationsView),
 			widget.NewButton("Players", updatePlayersView),
+			widget.NewButton("Accounts Info", updateAccountsView),
 		),
-		widget.NewForm(
-			widget.NewFormItem(
-				"Execute query: ",
-				widget.NewButton("Execute", func() {
-					str, _ := entryString.Get()
-					sendCommandToServer("query " + str)
-				}),
+		container.NewGridWithColumns(
+			3,
+			container.NewGridWithRows(
+				2,
+				widget.NewLabel("Username:"),
+				widget.NewEntryWithData(entryStringUsername),
 			),
-			widget.NewFormItem("Query: ", widget.NewEntryWithData(entryString)),
+			widget.NewButton("Delete", func() {
+				str, _ := entryStringUsername.Get()
+				sendCommandToServer("delete_account " + str)
+			}),
+			widget.NewButton("Reset\n password", func() {
+				str, _ := entryStringUsername.Get()
+				sendCommandToServer("reset_password " + str)
+			}),
 		),
 		widget.NewButton("Quit", func() {
 			updateAuthView()

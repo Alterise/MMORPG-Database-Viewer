@@ -28,6 +28,12 @@ type CharacterInfo struct {
 	ItemName    string 	`json:"itemName"`
 }
 
+type AccountInfo struct {
+	Id    		int		`json:"id"`
+	Username    string 	`json:"username"`
+	DateOfBirth string  `json:"dateOfBirth"`
+}
+
 func createLocationInfoJsonArray(db *sql.DB, args []string) []byte {
 	sqlRows, err := db.Query("select * from locations order by location_id")
 	if err != nil {
@@ -65,6 +71,30 @@ func createPlayerInfoJsonArray(db *sql.DB, args []string) []byte {
 	for sqlRows.Next() {
 		var result PlayerInfo
 		err = sqlRows.Scan(&result.Username, &result.DateOfBirth, &result.Level, &result.Nickname, &result.Race)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		rows = append(rows, result)
+	}
+
+	marshal, err := json.Marshal(rows)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	return marshal
+}
+
+func createAccountInfoJsonArray(db *sql.DB, args []string) []byte {
+	sqlRows, err := db.Query(
+		"select personal_data.account_id, personal_data.username, personal_data.date_of_birth from personal_data Order By account_id")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+
+	var rows []AccountInfo
+	for sqlRows.Next() {
+		var result AccountInfo
+		err = sqlRows.Scan(&result.Id, &result.Username, &result.DateOfBirth)
 		if err != nil {
 			fmt.Println(err.Error())
 		}

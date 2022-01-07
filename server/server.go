@@ -24,6 +24,12 @@ func (s *server) run() {
 			s.sendJson(cmd.client, cmd.args, createLocationInfoJsonArray)
 		case CMD_UPDATE_VIEW_PLAYERS:
 			s.sendJson(cmd.client, cmd.args, createPlayerInfoJsonArray)
+		case CMD_UPDATE_VIEW_ACCOUNTS:
+			s.sendJson(cmd.client, cmd.args, createAccountInfoJsonArray)
+		case CMD_RESET_PASSWORD:
+			s.resetPassword(cmd.client, cmd.args)
+		case CMD_DELETE_ACCOUNT:
+			s.deleteAccount(cmd.client, cmd.args)
 		case CMD_QUERY:
 			s.processQuery(cmd.client, cmd.args)
 		case CMD_VERIFY:
@@ -42,6 +48,29 @@ func (s *server) sendJson(c *client, args []string, createFunc func(*sql.DB, []s
 	fmt.Println("sent: " + json)
 }
 
+func (s *server) deleteAccount(c *client, args []string) {
+	_, err := db.Exec("DELETE FROM personal_data WHERE username ='" + args[0] + "'")
+	if err != nil {
+		c.msg("failed")
+		fmt.Println("Can't delete user with username: " + args[0])
+	} else {
+		c.msg("success")
+		fmt.Println("User with username: " + args[0] + " has been deleted")
+	}
+}
+
+func (s *server) resetPassword(c *client, args []string) {
+	_, err := db.Exec("UPDATE personal_data SET password_hash = " +
+		"'cdb59355f3ba293977fc0945fb85f11822d412c45c7520c7121bd2234f6c1f48' WHERE username = '" + args[0] + "'")
+	if err != nil {
+		c.msg("failed")
+		fmt.Println("Can't reset password for user with username: " + args[0])
+	} else {
+		c.msg("success")
+		fmt.Println("Password for user with username: " + args[0] + " has been reset")
+	}
+}
+
 func (s *server) processQuery(c *client, args []string) {
 	query := strings.Join(args, " ")
 	_, err := db.Exec(query)
@@ -53,6 +82,8 @@ func (s *server) processQuery(c *client, args []string) {
 		fmt.Println("Query executed successfully: " + query)
 	}
 }
+
+
 
 func (s *server) verify(c *client, args []string) {
 	login, password := args[0], args[1]

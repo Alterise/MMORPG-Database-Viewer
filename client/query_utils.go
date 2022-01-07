@@ -28,6 +28,13 @@ type CharacterInfo struct {
 	ItemName    string 	`json:"itemName"`
 }
 
+type AccountInfo struct {
+	Id    		int		`json:"id"`
+	Username    string 	`json:"username"`
+	DateOfBirth string  `json:"dateOfBirth"`
+}
+
+
 func NewLocationInfoView(rows []LocationInfo) fyne.CanvasObject {
 	var data [][]string
 	for _, location := range rows {
@@ -59,6 +66,20 @@ func NewPlayerInfoView(rows []PlayerInfo) fyne.CanvasObject {
 	//return createGridView(PlayerInfo{}, data)
 }
 
+func NewAccountInfoView(rows []AccountInfo) fyne.CanvasObject {
+	var data [][]string
+	for _, account := range rows {
+		row := []string{
+			strconv.Itoa(account.Id),
+			account.Username,
+			account.DateOfBirth,
+		}
+		data = append(data, row)
+	}
+	return createTableView(AccountInfo{}, data)
+	//return createGridView(PlayerInfo{}, data)
+}
+
 func parseJsonToLocationInfoArray(jsonString string) []LocationInfo {
 	var array []LocationInfo
 	err := json.Unmarshal([]byte(jsonString), &array)
@@ -72,6 +93,17 @@ func parseJsonToLocationInfoArray(jsonString string) []LocationInfo {
 
 func parseJsonToPlayerInfoArray(jsonString string) []PlayerInfo {
 	var array []PlayerInfo
+	err := json.Unmarshal([]byte(jsonString), &array)
+	if err != nil {
+		println(err.Error())
+		return nil
+	}
+
+	return array
+}
+
+func parseJsonToAccountInfoArray(jsonString string) []AccountInfo {
+	var array []AccountInfo
 	err := json.Unmarshal([]byte(jsonString), &array)
 	if err != nil {
 		println(err.Error())

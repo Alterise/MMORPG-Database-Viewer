@@ -18,6 +18,7 @@ def send_command_to_server(cmd):
         data = conn.recv(4096)
     except:
         print("\nCan't connect to the server. Please, try again later")
+        conn.close()
         sys.exit()
     return data.decode('utf-8').strip("\n")
 
@@ -29,7 +30,7 @@ def try_login():
         return False, login
 
     print("Input password: ", end='')
-    password = hashlib.md5(str(input()).encode()).hexdigest()
+    password = hashlib.sha256(str(input()).encode()).hexdigest()
 
     response = send_command_to_server("verify " + login + " " + password)
     return response == "success", login
@@ -113,7 +114,10 @@ def auth():
     if command == "1":
         login_response = try_login()
         if login_response[0]:
-            get_characters(login_response[1])
+            try:
+                get_characters(login_response[1])
+            except:
+                print("\nBroken account\n")
         elif login_response[1] == "admin":
             print("\nNo admin panel here\n")
         else:
@@ -147,6 +151,7 @@ try:
     conn.connect((HOST, PORT))
 except:
     print("\nCan't connect to the server. Please, try again later")
+    conn.close()
     sys.exit()
 
 while menu():

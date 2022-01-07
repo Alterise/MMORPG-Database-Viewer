@@ -14,9 +14,10 @@ import (
 
 var window fyne.Window
 var conn net.Conn
-var entryString binding.String
+var entryStringUsername binding.String
 var entryStringLogin binding.String
 var entryStringPassword binding.String
+var passwordEntry *widget.Entry
 
 func updateLocationsView() {
 	serverMsg := sendCommandToServer("update_locations")
@@ -28,6 +29,12 @@ func updatePlayersView() {
 	serverMsg := sendCommandToServer("update_players")
 	array := parseJsonToPlayerInfoArray(serverMsg)
 	window.SetContent(container.NewGridWithRows(2, NewPlayerInfoView(array), createControlsView()))
+}
+
+func updateAccountsView() {
+	serverMsg := sendCommandToServer("update_accounts")
+	array := parseJsonToAccountInfoArray(serverMsg)
+	window.SetContent(container.NewGridWithRows(2, NewAccountInfoView(array), createControlsView()))
 }
 
 func updateEmptyView() {
@@ -62,12 +69,14 @@ func updatePlayerView(login string) {
 func updateAuthView() {
 	entryStringLogin = binding.NewString()
 	entryStringPassword = binding.NewString()
+	passwordEntry = widget.NewPasswordEntry()
+	passwordEntry.Bind(entryStringPassword)
 	window.SetContent(
 		container.NewGridWithRows(
 			2,
 			widget.NewForm(
 				widget.NewFormItem("Login:", widget.NewEntryWithData(entryStringLogin)),
-				widget.NewFormItem("Password:", widget.NewEntryWithData(entryStringPassword)),
+				widget.NewFormItem("Password:", passwordEntry),
 			),
 			widget.NewButton("Login", func() {
 				strLogin, _ := entryStringLogin.Get()

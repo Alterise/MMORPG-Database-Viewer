@@ -36,6 +36,24 @@ func (c *client) readCommand() {
 				id:     CMD_UPDATE_VIEW_PLAYERS,
 				client: c,
 			}
+		case "update_accounts":
+			c.commands <- command{
+				id:     CMD_UPDATE_VIEW_ACCOUNTS,
+				client: c,
+				args: args,
+			}
+		case "delete_account":
+			c.commands <- command{
+				id:     CMD_DELETE_ACCOUNT,
+				client: c,
+				args: args,
+			}
+		case "reset_password":
+			c.commands <- command{
+				id:     CMD_RESET_PASSWORD,
+				client: c,
+				args: args,
+			}
 		case "query":
 			c.commands <- command{
 				id:     CMD_QUERY,
